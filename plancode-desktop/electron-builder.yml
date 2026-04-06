@@ -1,0 +1,13 @@
+appId: com.plancode.desktop
+productName: PlanCoDE Desktop
+directories:
+  output: release
+files:
+  - dist/**/*
+  - dist-electron/**/*
+  - bridge/**/*
+extraMetadata:
+  main: dist-electron/main.js
+asar: true
+asarUnpack:
+  - bridge/**/*
