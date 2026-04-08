@@ -126,6 +126,12 @@ declare global {
         message?: string
       }>
       confirmRestartPlanning: (targetPath: string, sampleEntries: string[]) => Promise<{ status: string; confirmed?: boolean }>
+      getGeneralWorkspaceInfo: () => Promise<{
+        status: string
+        workspaceDir?: string
+        projectRoot?: string
+        skillDirs?: string[]
+      }>
       onAgentEvent: (callback: (payload: AgentEventPayload) => void) => () => void
       onDangerous: (callback: (payload: AgentDangerousPayload) => void) => () => void
       onResult: (callback: (payload: AgentResultPayload) => void) => () => void

@@ -26,6 +26,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   checkWorkdir: (targetPath: string) => ipcRenderer.invoke('dialog:check-workdir', { targetPath }),
   confirmRestartPlanning: (targetPath: string, sampleEntries: string[]) =>
     ipcRenderer.invoke('dialog:confirm-restart-planning', { targetPath, sampleEntries }),
+  getGeneralWorkspaceInfo: () => ipcRenderer.invoke('dialog:get-general-workspace-info'),
 
   // Events from main process
   onAgentEvent: (callback: (payload: { runId: string; name: string; data: any }) => void) => {

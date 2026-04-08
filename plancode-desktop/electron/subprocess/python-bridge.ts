@@ -1,10 +1,18 @@
 import { spawn, ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
+import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+function resolveDefaultWorkdir() {
+  const projectRoot = path.resolve(__dirname, '..', '..', '..')
+  const workDir = path.join(projectRoot, 'work')
+  fs.mkdirSync(workDir, { recursive: true })
+  return workDir
+}
 
 export class PythonBridge extends EventEmitter {
   private process: ChildProcess | null = null
@@ -16,7 +24,7 @@ export class PythonBridge extends EventEmitter {
 
   constructor(workdir: string, env: NodeJS.ProcessEnv) {
     super()
-    this.workdir = workdir
+    this.workdir = workdir?.trim() ? workdir : resolveDefaultWorkdir()
     this.env = env
     this.pythonExe = process.platform === 'win32' ? 'python' : 'python3'
     this.bridgeDir = path.join(__dirname, '..', '..', 'bridge')

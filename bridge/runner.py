@@ -32,6 +32,27 @@ if str(PROJECT_ROOT) not in sys.path:
 from bridge.ipc_callback import IpcCallback
 
 
+def sanitize_chat_messages(messages):
+    if not messages:
+        return None
+
+    normalized = []
+    for item in messages:
+        if not isinstance(item, dict):
+            continue
+
+        role = item.get("role")
+        content = item.get("content")
+        if role not in ("user", "assistant"):
+            continue
+        if not isinstance(content, str) or not content.strip():
+            continue
+
+        normalized.append({"role": role, "content": content})
+
+    return normalized or None
+
+
 def read_stdin_thread(callback: IpcCallback):
     """Read stdin in a background thread and forward control messages."""
     for line in sys.stdin:
@@ -84,7 +105,7 @@ def run_agent(
         from main.general_agent import GeneralAgent
 
         agent = GeneralAgent(workdir=wd)
-        parsed_messages = json.loads(messages) if messages else None
+        parsed_messages = sanitize_chat_messages(json.loads(messages)) if messages else None
         result = agent.run(prompt=prompt or "", messages=parsed_messages, event_callback=callback)
     else:
         return

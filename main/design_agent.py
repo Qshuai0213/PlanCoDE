@@ -82,13 +82,13 @@ class DesignAgent:
         self.context = context or AgentContext(workdir=self.workdir)
 
         sk_dir = skills_dir or (self.workdir / "skills")
-        self.skills = SkillLoader(sk_dir) if sk_dir.exists() else None
-        set_skills_dir(sk_dir if sk_dir.exists() else None)
+        self.skills = SkillLoader(sk_dir, workdir=self.workdir)
+        set_skills_dir(sk_dir, workdir=self.workdir)
 
         if system:
             self.system = system
         else:
-            skill_line = f"\n\nAvailable skills:\n{self.skills.descriptions()}" if self.skills else ""
+            skill_line = f"\n\nAvailable skills:\n{self.skills.descriptions()}" if self.skills.skills else ""
             self.system = _BASE_SYSTEM + skill_line
 
     def run(self, plan: str = None, plan_path: Path = None, output_path: Path = None, event_callback: EventCallback = None) -> RunResult:

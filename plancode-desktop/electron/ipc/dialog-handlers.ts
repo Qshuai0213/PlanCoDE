@@ -1,9 +1,11 @@
 import { createRequire } from 'module'
 import type { IpcMain, BrowserWindow } from 'electron'
 import fs from 'fs/promises'
+import os from 'os'
+import path from 'path'
 
 const require = createRequire(import.meta.url)
-const { dialog, shell } = require('electron') as typeof import('electron')
+const { app, dialog, shell } = require('electron') as typeof import('electron')
 
 export function dialogHandlers(
   ipcMain: IpcMain,
@@ -88,5 +90,25 @@ export function dialogHandlers(
       noLink: true,
     })
     return { status: 'ok', confirmed: result.response === 0 }
+  })
+
+  ipcMain.handle('dialog:get-general-workspace-info', async () => {
+    const homeDir = app.getPath('home') || os.homedir()
+    const sandboxDir = path.join(homeDir, '.plancode-general')
+    const appPath = app.getAppPath()
+    const projectRoot = path.resolve(appPath, '..')
+    const projectSkillsDir = path.join(projectRoot, 'skills')
+
+    return {
+      status: 'ok',
+      workspaceDir: sandboxDir,
+      projectRoot,
+      skillDirs: [
+        path.join(sandboxDir, 'skills'),
+        path.join(homeDir, '.codex', 'skills'),
+        path.join(homeDir, '.agents', 'skills'),
+        projectSkillsDir,
+      ],
+    }
   })
 }

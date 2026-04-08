@@ -82,14 +82,14 @@ class PlanAgent:
 
         # Skill 加载，拼入 system prompt
         sk_dir = skills_dir or (self.workdir / "skills")
-        self.skills = SkillLoader(sk_dir) if sk_dir.exists() else None
-        set_skills_dir(sk_dir if sk_dir.exists() else None)
+        self.skills = SkillLoader(sk_dir, workdir=self.workdir)
+        set_skills_dir(sk_dir, workdir=self.workdir)
 
         # System prompt = 基础 + skill 描述（工具通过 config 注入，不写在这里）
         if system:
             self.system = system
         else:
-            skill_line = f"\n\nAvailable skills:\n{self.skills.descriptions()}" if self.skills else ""
+            skill_line = f"\n\nAvailable skills:\n{self.skills.descriptions()}" if self.skills.skills else ""
             self.system = _BASE_SYSTEM + skill_line
 
     def run(self, goal: str, output_path: Path = None, event_callback: EventCallback = None) -> RunResult:

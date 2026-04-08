@@ -24,6 +24,15 @@ function buildEnv(model: string, apiKey: string, baseUrl: string, provider: stri
   }
 }
 
+function toConversationMessages(messages: GeneralMessage[]) {
+  return messages
+    .filter((message) => message.role === 'user' || message.role === 'assistant')
+    .map((message) => ({
+      role: message.role,
+      content: message.content,
+    }))
+}
+
 function AnimatedMessage({
   message,
   animate,
@@ -87,7 +96,7 @@ export function GeneralDeckPage() {
     pushGeneralEvent,
     finishGeneralRound,
   } = useEventStore()
-  const { workdir, model, apiKey, baseUrl, provider } = useSettingStore()
+  const { model, apiKey, baseUrl, provider } = useSettingStore()
   const { registerRun, finishRun, dangerousByRun, setDangerousEvent, clearDangerousEvent } =
     useAgentStore()
 
@@ -138,15 +147,12 @@ export function GeneralDeckPage() {
 
   async function handleSend() {
     const prompt = input.trim()
-    if (!prompt || !activeThread || isRunning || !workdir) return
+    if (!prompt || !activeThread || isRunning) return
 
     const runId = generateRunId()
     const env = buildEnv(model, apiKey, baseUrl, provider)
     const conversationMessages = [
-      ...activeThread.messages.map((message) => ({
-        role: message.role,
-        content: message.content,
-      })),
+      ...toConversationMessages(activeThread.messages),
       { role: 'user', content: prompt },
     ]
     const { threadId } = startGeneralRound(activeThread.id, prompt, runId)
@@ -235,7 +241,7 @@ export function GeneralDeckPage() {
         runId,
         agentType: 'general',
         options: { prompt, messages: conversationMessages },
-        workdir,
+        workdir: '',
         env,
       })
     } catch (error) {
@@ -423,7 +429,7 @@ export function GeneralDeckPage() {
           <div className="border-b border-border px-4 py-4">
             <div className="text-lg font-medium text-text-primary">活动面板</div>
             <div className="mt-1 text-sm text-text-secondary">
-              实时思考、工具调用、stderr 与退出状态都在这里。
+              实时思考、工具调用、stderr 与退出状态都会显示在这里。
             </div>
           </div>
           <div className="grid gap-3 border-b border-border px-4 py-4">
